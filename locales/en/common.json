@@ -1,4 +1,20 @@
 {
   "nav.home": "Home",
-  "nav.about": "About"
+  "nav.about": "About",
+  "article.title": "Articles",
+  "article.subtitle": "Explore the latest tech trends and development practices",
+  "article.read_more": "Read More",
+  "article.back": "Back",
+  "article.views": "Views",
+  "article.likes": "Likes",
+  "article.like": "Like",
+  "article.unlike": "Unlike",
+  "article.no_articles": "No Articles",
+  "article.coming_soon": "Coming Soon",
+  "article.no_content": "No Content",
+  "error.loading_failed": "Loading Failed",
+  "error.try_again_later": "Please try again later",
+  "pagination.previous": "Previous",
+  "pagination.next": "Next",
+  "pagination.page": "Page {{page}}"
 }

@@ -11,9 +11,10 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {useApp} from "@/app/[locale]/app";
 
 export const ThemeToggle: React.FC<React.ComponentProps<typeof DropdownMenu>> = ({...props}) => {
-    const {setTheme} = useTheme()
+    const {setTheme} = useApp().useTheme()
 
     return (
         <DropdownMenu  {...props}>

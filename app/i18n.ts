@@ -5,7 +5,7 @@ import i18nConfig from '@/i18nConfig';
 
 export async function initTranslations(
     locale: string,
-    namespaces: string[],
+    namespaces: string[] = ['common'],
     i18nInstance: i18n | null = null,
     resources: Resource | null = null
 ) {

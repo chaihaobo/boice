@@ -1,4 +1,6 @@
 @import "tailwindcss";
+
+@plugin "tailwind-scrollbar-hide";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -42,6 +44,7 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --shadow-glass: var(--glass-shadow);
+  --color-highlight: var(--highlight);
 }
 
 :root {
@@ -165,6 +168,9 @@
   --blur-crystal: 2px;
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
+    --font-geist-sans: 'Geist', sans-serif;
+    --font-geist-mono: 'Geist Mono', monospace;
+    --highlight: oklch(0.852 0.199 91.936);
 }
 
 .dark {
@@ -279,7 +285,7 @@
   --sidebar-accent: oklch(0.274 0.006 286.033); /* Dark gray */
   --sidebar-accent-foreground: oklch(0.985 0 0); /* White - Apple-style */
   --sidebar-border: oklch(1 0 0 / 10%); /* Medium gray - 3:1 contrast */
-  --sidebar-ring: oklch(0.552 0.016 285.938); /* Light blue ring - 3:1 contrast */
+  --sidebar-ring: oklch(0.552 0.016 285.938); /* Light blue ring - 3:1 contrast */ --highlight: oklch(0.852 0.199 91.936);
 }
 
 @layer base {
