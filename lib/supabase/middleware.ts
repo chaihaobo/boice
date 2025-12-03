@@ -1,6 +1,19 @@
 import {createServerClient} from '@supabase/ssr'
 import {NextResponse, type NextRequest} from 'next/server'
 
+// 从环境变量获取允许访问 dashboard 的邮箱列表
+// 支持多个邮箱，用逗号分隔
+function getAdminEmails(): string[] {
+    const adminEmails = process.env.ADMIN_EMAILS || ''
+    return adminEmails.split(',').map(email => email.trim().toLowerCase()).filter(Boolean)
+}
+
+// 检查路径是否是 dashboard 路由（支持多语言前缀）
+function isDashboardRoute(pathname: string): boolean {
+    // 匹配 /dashboard 或 /zh/dashboard 或 /en/dashboard 等
+    return /^(\/[a-z]{2})?\/dashboard(\/.*)?$/.test(pathname)
+}
+
 export async function updateSession(request: NextRequest, response: NextResponse) {
     let supabaseResponse = response
 
@@ -31,15 +44,32 @@ export async function updateSession(request: NextRequest, response: NextResponse
     const {data} = await supabase.auth.getClaims()
 
     const user = data?.claims
+    const pathname = request.nextUrl.pathname
 
-    if (
-        !user &&
-        request.nextUrl.pathname.startsWith('/dashboard')
-    ) {
-        // no user, potentially respond by redirecting the user to the login page
-        const url = request.nextUrl.clone()
-        url.pathname = '/login'
-        return NextResponse.redirect(url)
+    // 检查是否是 dashboard 路由
+    if (isDashboardRoute(pathname)) {
+        // 未登录用户重定向到首页
+        if (!user) {
+            const url = request.nextUrl.clone()
+            // 提取语言前缀
+            const localeMatch = pathname.match(/^\/([a-z]{2})\//)
+            const locale = localeMatch ? localeMatch[1] : 'zh'
+            url.pathname = `/${locale}`
+            return NextResponse.redirect(url)
+        }
+
+        // 检查用户邮箱是否在白名单中
+        const adminEmails = getAdminEmails()
+        const userEmail = (user.email as string || '').toLowerCase()
+        
+        if (adminEmails.length > 0 && !adminEmails.includes(userEmail)) {
+            // 用户邮箱不在白名单中，重定向到访问被拒绝页面
+            const url = request.nextUrl.clone()
+            const localeMatch = pathname.match(/^\/([a-z]{2})\//)
+            const locale = localeMatch ? localeMatch[1] : 'zh'
+            url.pathname = `/${locale}/access-denied`
+            return NextResponse.redirect(url)
+        }
     }
 
     // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're

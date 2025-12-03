@@ -3,7 +3,14 @@ import {useRouter} from 'next/navigation';
 import {usePathname} from 'next/navigation';
 import {useTranslation} from 'react-i18next';
 import i18nConfig from '@/i18nConfig';
-import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {Button} from "@/components/ui/button";
+import {Languages} from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 
 export const LanguageToggle: React.FC = () => {
@@ -12,9 +19,7 @@ export const LanguageToggle: React.FC = () => {
     const router = useRouter();
     const currentPathname = usePathname();
 
-    const handleChange = (value: string) => {
-        const newLocale = value;
-
+    const handleChange = (newLocale: string) => {
         // set cookie for next-i18n-router
         const days = 30;
         const date = new Date();
@@ -37,17 +42,27 @@ export const LanguageToggle: React.FC = () => {
     };
 
     return (
-        <>
-            <Select value={currentLocale} onValueChange={handleChange} >
-                <SelectTrigger className="w-[100px]">
-                    <SelectValue placeholder="Select Language" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="zh">中文</SelectItem>
-                    <SelectItem value="en">English</SelectItem>
-                </SelectContent>
-            </Select>
-        </>
-
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                    <Languages className="h-[1.2rem] w-[1.2rem]" />
+                    <span className="sr-only">Toggle language</span>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuItem 
+                    onClick={() => handleChange("zh")}
+                    className={currentLocale === "zh" ? "bg-accent" : ""}
+                >
+                    中文
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                    onClick={() => handleChange("en")}
+                    className={currentLocale === "en" ? "bg-accent" : ""}
+                >
+                    English
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 };

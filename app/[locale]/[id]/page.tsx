@@ -1,7 +1,8 @@
 import {getArticleById} from "@/lib/actions/article-actions";
 import {notFound} from "next/navigation";
 import {Suspense} from "react";
-import ArticleDetail from "./components/article-detail";
+import ArticleContent from "./components/article-content";
+import ArticleSkeleton from "./components/article-skeleton";
 
 export default async function ArticlePage({
     params,
@@ -15,15 +16,12 @@ export default async function ArticlePage({
         notFound();
     }
     
-    const article = await getArticleById(articleId);
-    
-    if (!article) {
-        notFound();
-    }
+    // 不 await，直接传递 Promise
+    const articlePromise = getArticleById(articleId);
 
     return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <ArticleDetail article={article} locale={locale} />
+        <Suspense fallback={<ArticleSkeleton />}>
+            <ArticleContent articlePromise={articlePromise} locale={locale} />
         </Suspense>
     );
 }

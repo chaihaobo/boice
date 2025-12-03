@@ -1,14 +1,8 @@
 import type {Metadata} from "next";
 import {Geist, Geist_Mono} from "next/font/google";
-import {ThemeProvider} from "@/components/theme-provider";
 import '../globals.css'
-import {NavBar} from "@/app/[locale]/components/nav-bar";
 import React from "react";
-import TranslationsProvider from "@/components/translations-provider";
 import {initTranslations} from "@/app/i18n";
-import {ThemeToggle} from "@/components/theme-toggle";
-import {LanguageToggle} from "@/components/language-toggle";
-import {Header} from "@/app/[locale]/components/header";
 import {AppProvider} from "@/app/[locale]/app";
 import {createClient} from "@/lib/supabase/server";
 
