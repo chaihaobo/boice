@@ -12,3 +12,4 @@ export default async function AboutPage({ params }: AboutPageProps) {
     return <AboutContent content={aboutMe?.content || null} locale={locale} />
 }
 
+

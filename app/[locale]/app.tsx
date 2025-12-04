@@ -15,6 +15,10 @@ import {
     QueryClient,
     QueryClientProvider,
 } from "@tanstack/react-query";
+import Script from "next/script";
+import {AssistantRuntimeProvider} from "@assistant-ui/react";
+import {useChatRuntime, AssistantChatTransport} from "@assistant-ui/react-ai-sdk";
+import {AssistantModal} from "@/components/assistant-ui/assistant-modal";
 
 
 export interface App {
@@ -60,7 +64,11 @@ function createApp(authUser: User | null, locale: string) {
 
 export const AppProvider: React.FC<AppProviderProps> = ({locale, i18nResource, children, authUser}) => {
     const app = createApp(authUser, locale);
-    console.log("App Provider")
+    const runtime = useChatRuntime({
+        transport: new AssistantChatTransport({
+            api: "/api/chat",
+        }),
+    });
     return <>
         <AppContext.Provider value={app}>
             <TranslationsProvider
@@ -75,6 +83,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({locale, i18nResource, c
                     <QueryClientProvider client={new QueryClient()}>
                         <Header/>
                         {children}
+                        <AssistantRuntimeProvider runtime={runtime}>
+                            <AssistantModal/>
+                        </AssistantRuntimeProvider>
                     </QueryClientProvider>
                 </ThemeProvider>
             </TranslationsProvider>

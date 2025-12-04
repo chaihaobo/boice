@@ -5,6 +5,7 @@ import React from "react";
 import {initTranslations} from "@/app/i18n";
 import {AppProvider} from "@/app/[locale]/app";
 import {createClient} from "@/lib/supabase/server";
+import Script from "next/script";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -29,7 +30,6 @@ export default async function RootLayout({
     children: React.ReactNode;
     params: Promise<{ locale: string }>;
 }>) {
-    console.log("RootLayout")
     const locale = (await params).locale;
     const {t, resources} = await initTranslations(locale);
     const supabaseClient = await createClient();
@@ -42,6 +42,7 @@ export default async function RootLayout({
             {children}
         </AppProvider>
         </body>
+
         </html>
     );
 }

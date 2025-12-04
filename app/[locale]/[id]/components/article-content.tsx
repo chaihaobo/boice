@@ -20,3 +20,4 @@ export default function ArticleContent({ articlePromise, locale }: ArticleConten
     return <ArticleDetail article={article} locale={locale} />;
 }
 
+
