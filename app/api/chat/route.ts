@@ -6,6 +6,14 @@ import {
   createArticleTool,
   getCategoriesListTool,
   getTagsListTool,
+  generateCoverImageTool,
+  getMultipleCoverImagesTool,
+  createTagTool,
+  createCategoryTool,
+  updateArticleStatusTool,
+  getCurrentTimeTool,
+  generateSlugTool,
+  searchArticlesTool,
 } from "@/lib/tools";
 
 export const maxDuration = 60;
@@ -38,13 +46,28 @@ const createBlogAssistantAgent = () => {
 - 使用 getTagsList 获取可用的标签列表
 - 创建文章时可以设置标题、内容、描述、分类、标签和状态
 
+### 4. 封面图生成
+- 使用 generateCoverImage 工具生成一张随机封面图（无需参数）
+- 使用 getMultipleCoverImages 工具获取多张封面图供选择（可选指定数量1-6张）
+
+### 5. 标签和分类管理
+- 使用 createTag 创建新标签
+- 使用 createCategory 创建新分类
+- 使用 updateArticleStatus 更新文章状态（draft/published/archived）
+
+### 6. 实用工具
+- 使用 getCurrentTime 获取当前时间
+- 使用 generateSlug 生成 URL 友好的 slug
+- 使用 searchArticles 通过关键词全文搜索文章内容
+
 ## 工作流程示例：
 
 ### 根据网页创建文章：
 1. 先使用 scrape 抓取用户提供的网页
 2. 根据抓取的内容整理成文章格式
 3. 询问用户是否需要选择分类和标签（可以先获取列表）
-4. 使用 createArticle 创建文章
+4. 如果用户没有提供封面图，使用 generateCoverImage 生成一张
+5. 使用 createArticle 创建文章
 
 ### 查询文章：
 1. 使用 queryArticles 获取文章列表
@@ -65,6 +88,17 @@ const createBlogAssistantAgent = () => {
       createArticle: createArticleTool,
       getCategoriesList: getCategoriesListTool,
       getTagsList: getTagsListTool,
+      // 封面图生成
+      generateCoverImage: generateCoverImageTool,
+      getMultipleCoverImages: getMultipleCoverImagesTool,
+      // 标签和分类管理
+      createTag: createTagTool,
+      createCategory: createCategoryTool,
+      updateArticleStatus: updateArticleStatusTool,
+      // 实用工具
+      getCurrentTime: getCurrentTimeTool,
+      generateSlug: generateSlugTool,
+      searchArticles: searchArticlesTool,
     },
     stopWhen: stepCountIs(10), // 允许最多10个步骤
   });

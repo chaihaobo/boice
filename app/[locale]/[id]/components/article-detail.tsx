@@ -1,14 +1,15 @@
 "use client";
 
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState, useCallback, useRef} from 'react';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
-import {Calendar, Clock, User, Eye, Heart, ArrowLeft, ListTree} from 'lucide-react';
+import {Calendar, Clock, User, Eye, Heart, ArrowLeft, ListTree, Loader2} from 'lucide-react';
 import {ArticleEntity} from "@/lib/entity/article";
 import {useRouter} from "next/navigation";
 import {useTranslation} from "react-i18next";
 import TiptapEditor from "@/components/tiptap-editor";
 import { cn } from "@/lib/utils";
+import { incrementViews, toggleLike, checkUserLiked } from "@/lib/actions/article-actions";
 
 // TOC Anchor 类型定义
 interface TocAnchor {
@@ -30,17 +31,31 @@ export default function ArticleDetail({article}: ArticleDetailProps) {
     const router = useRouter();
     const {t} = useTranslation();
     const [liked, setLiked] = useState(false);
+    const [likesCount, setLikesCount] = useState(article.likes || 0);
+    const [viewsCount, setViewsCount] = useState(article.views || 0);
+    const [isLiking, setIsLiking] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [tocAnchors, setTocAnchors] = useState<TocAnchor[]>([]);
     const [showToc, setShowToc] = useState(true);
+    const viewsIncrementedRef = useRef(false);
 
+    // 页面加载时增加阅读数和检查点赞状态
     useEffect(() => {
-        // 这里可以添加实际的点赞状态检查逻辑
-        // 比如从 localStorage 或服务器获取用户的点赞状态
-        const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
-        // 使用 setTimeout 避免在 effect 中直接调用 setState
-        setTimeout(() => {
-            setLiked(likedArticles.includes(article.id));
-        }, 0);
+        // 增加阅读数（只在首次加载时执行一次）
+        if (!viewsIncrementedRef.current) {
+            viewsIncrementedRef.current = true;
+            incrementViews(article.id).then((result) => {
+                if (result.success) {
+                    setViewsCount(result.views);
+                }
+            });
+        }
+        
+        // 检查用户是否已点赞
+        checkUserLiked(article.id).then((result) => {
+            setLiked(result.liked);
+            setIsLoggedIn(!!result.userId);
+        });
     }, [article.id]);
 
     const handleTocUpdate = useCallback((anchors: TocAnchor[]) => {
@@ -60,16 +75,31 @@ export default function ArticleDetail({article}: ArticleDetailProps) {
         return date.toISOString().split('T')[0];
     };
 
-    const handleLike = () => {
-        const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
-        if (liked) {
-            const newLiked = likedArticles.filter((id: number) => id !== article.id);
-            localStorage.setItem('likedArticles', JSON.stringify(newLiked));
-            setLiked(false);
-        } else {
-            likedArticles.push(article.id);
-            localStorage.setItem('likedArticles', JSON.stringify(likedArticles));
-            setLiked(true);
+    const handleLike = async () => {
+        if (isLiking) return;
+        
+        if (!isLoggedIn) {
+            // 可以在这里添加提示用户登录的逻辑
+            alert(t('article.login_required', '请先登录后再点赞'));
+            return;
+        }
+        
+        setIsLiking(true);
+        
+        try {
+            const result = await toggleLike(article.id);
+            
+            if (result.success) {
+                setLiked(result.liked);
+                setLikesCount(result.likesCount);
+            } else if (result.error) {
+                alert(result.error);
+            }
+        } catch (error) {
+            console.error("Error toggling like:", error);
+            alert(t('article.like_error', '操作失败，请稍后重试'));
+        } finally {
+            setIsLiking(false);
         }
     };
 
@@ -154,16 +184,24 @@ export default function ArticleDetail({article}: ArticleDetailProps) {
                             <div className="flex items-center gap-4 text-sm text-slate-600 mb-6">
                                 <div className="flex items-center gap-1">
                                     <Eye className="w-4 h-4"/>
-                                    <span>{article.views || 0} {t('article.views', '阅读')}</span>
+                                    <span>{viewsCount} {t('article.views', '阅读')}</span>
                                 </div>
                                 <button
                                     onClick={handleLike}
-                                    className="flex items-center gap-1 hover:text-red-500 transition-colors"
+                                    disabled={isLiking}
+                                    className={cn(
+                                        "flex items-center gap-1 transition-colors",
+                                        isLiking ? "opacity-50 cursor-not-allowed" : "hover:text-red-500"
+                                    )}
                                 >
-                                    <Heart
-                                        className={`w-4 h-4 ${liked ? 'fill-red-500 text-red-500' : ''}`}
-                                    />
-                                    <span>{article.likes || 0} {t('article.likes', '点赞')}</span>
+                                    {isLiking ? (
+                                        <Loader2 className="w-4 h-4 animate-spin"/>
+                                    ) : (
+                                        <Heart
+                                            className={`w-4 h-4 ${liked ? 'fill-red-500 text-red-500' : ''}`}
+                                        />
+                                    )}
+                                    <span>{likesCount} {t('article.likes', '点赞')}</span>
                                 </button>
                             </div>
                         </div>
@@ -215,11 +253,19 @@ export default function ArticleDetail({article}: ArticleDetailProps) {
                                     variant="outline"
                                     size="sm"
                                     onClick={handleLike}
-                                    className={`${liked ? 'border-red-500 text-red-500' : ''}`}
+                                    disabled={isLiking}
+                                    className={cn(
+                                        liked ? 'border-red-500 text-red-500' : '',
+                                        isLiking && 'opacity-50 cursor-not-allowed'
+                                    )}
                                 >
-                                    <Heart
-                                        className={`w-4 h-4 mr-1 ${liked ? 'fill-red-500' : ''}`}
-                                    />
+                                    {isLiking ? (
+                                        <Loader2 className="w-4 h-4 mr-1 animate-spin"/>
+                                    ) : (
+                                        <Heart
+                                            className={`w-4 h-4 mr-1 ${liked ? 'fill-red-500' : ''}`}
+                                        />
+                                    )}
                                     {liked ? t('article.unlike', '取消点赞') : t('article.like', '点赞')}
                                 </Button>
                             </div>

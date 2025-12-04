@@ -16,3 +16,19 @@ export {
   getTagsListTool,
 } from "./create-article-tool";
 
+// 封面图生成工具
+export {
+  generateCoverImageTool,
+  getMultipleCoverImagesTool,
+} from "./cover-image-tool";
+
+// 基础工具
+export {
+  createTagTool,
+  createCategoryTool,
+  updateArticleStatusTool,
+  getCurrentTimeTool,
+  generateSlugTool,
+  searchArticlesTool,
+} from "./basic-tools";
+

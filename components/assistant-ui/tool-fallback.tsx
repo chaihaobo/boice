@@ -15,7 +15,7 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
   result,
   status,
 }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   const isCancelled =
     status?.type === "incomplete" && status.reason === "cancelled";

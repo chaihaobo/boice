@@ -19,6 +19,21 @@ import Script from "next/script";
 import {AssistantRuntimeProvider} from "@assistant-ui/react";
 import {useChatRuntime, AssistantChatTransport} from "@assistant-ui/react-ai-sdk";
 import {AssistantModal} from "@/components/assistant-ui/assistant-modal";
+import {
+    QueryArticlesToolUI,
+    ScrapeToolUI,
+    CreateArticleToolUI,
+    GetCategoriesToolUI,
+    GetTagsToolUI,
+    GenerateCoverImageToolUI,
+    GetMultipleCoverImagesToolUI,
+    CreateTagToolUI,
+    CreateCategoryToolUI,
+    UpdateArticleStatusToolUI,
+    GetCurrentTimeToolUI,
+    GenerateSlugToolUI,
+    SearchArticlesToolUI,
+} from "@/components/assistant-ui/tool-ui";
 
 
 export interface App {
@@ -84,6 +99,19 @@ export const AppProvider: React.FC<AppProviderProps> = ({locale, i18nResource, c
                         <Header/>
                         {children}
                         <AssistantRuntimeProvider runtime={runtime}>
+                            <QueryArticlesToolUI />
+                            <ScrapeToolUI />
+                            <CreateArticleToolUI />
+                            <GetCategoriesToolUI />
+                            <GetTagsToolUI />
+                            <GenerateCoverImageToolUI />
+                            <GetMultipleCoverImagesToolUI />
+                            <CreateTagToolUI />
+                            <CreateCategoryToolUI />
+                            <UpdateArticleStatusToolUI />
+                            <GetCurrentTimeToolUI />
+                            <GenerateSlugToolUI />
+                            <SearchArticlesToolUI />
                             <AssistantModal/>
                         </AssistantRuntimeProvider>
                     </QueryClientProvider>

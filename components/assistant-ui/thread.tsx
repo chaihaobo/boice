@@ -6,6 +6,7 @@ import {
     ChevronRightIcon,
     CopyIcon,
     PencilIcon,
+    PlusIcon,
     RefreshCwIcon,
     Square,
 } from "lucide-react";
@@ -17,6 +18,7 @@ import {
     ErrorPrimitive,
     MessagePrimitive,
     ThreadPrimitive,
+    useAssistantRuntime,
 } from "@assistant-ui/react";
 
 import type { FC } from "react";
@@ -42,8 +44,9 @@ export const Thread: FC = () => {
                 ["--thread-max-width" as string]: "44rem",
             }}
         >
+            <ThreadHeader />
             <ThreadPrimitive.Viewport
-                turnAnchor="top"
+                autoScroll={true}
                 className="aui-thread-viewport relative flex flex-1 flex-col overflow-x-auto overflow-y-scroll scroll-smooth px-4 pt-4"
             >
                 <ThreadPrimitive.If empty>
@@ -64,6 +67,32 @@ export const Thread: FC = () => {
                 </ThreadPrimitive.ViewportFooter>
             </ThreadPrimitive.Viewport>
         </ThreadPrimitive.Root>
+    );
+};
+
+const ThreadHeader: FC = () => {
+    const { t } = useTranslation();
+    const runtime = useAssistantRuntime();
+
+    const handleNewThread = () => {
+        runtime.threadList.switchToNewThread();
+    };
+
+    return (
+        <div className="aui-thread-header flex items-center justify-between border-b px-4 py-2">
+            <span className="text-sm font-medium text-muted-foreground">
+                {t("assistant.welcome_title")}
+            </span>
+            <TooltipIconButton
+                tooltip={t("assistant.new_thread")}
+                variant="ghost"
+                size="sm"
+                onClick={handleNewThread}
+                className="h-8 w-8"
+            >
+                <PlusIcon className="h-4 w-4" />
+            </TooltipIconButton>
+        </div>
     );
 };
 
@@ -108,21 +137,45 @@ const ThreadSuggestions: FC = () => {
             title: t("assistant.suggestion_query_articles_title"),
             label: t("assistant.suggestion_query_articles_label"),
             action: t("assistant.suggestion_query_articles_action"),
-            autoSend: true, // 查询文章直接发送
+            autoSend: true,
         },
         {
             title: t("assistant.suggestion_scrape_title"),
             label: t("assistant.suggestion_scrape_label"),
             action: t("assistant.suggestion_scrape_action"),
-            autoSend: false, // 抓取网页不自动发送，让用户填写 URL
+            autoSend: false,
+        },
+        {
+            title: t("assistant.suggestion_search_title"),
+            label: t("assistant.suggestion_search_label"),
+            action: t("assistant.suggestion_search_action"),
+            autoSend: false,
+        },
+        {
+            title: t("assistant.suggestion_time_title"),
+            label: t("assistant.suggestion_time_label"),
+            action: t("assistant.suggestion_time_action"),
+            autoSend: true,
+        },
+        {
+            title: t("assistant.suggestion_create_tag_title"),
+            label: t("assistant.suggestion_create_tag_label"),
+            action: t("assistant.suggestion_create_tag_action"),
+            autoSend: false,
+        },
+        {
+            title: t("assistant.suggestion_create_category_title"),
+            label: t("assistant.suggestion_create_category_label"),
+            action: t("assistant.suggestion_create_category_action"),
+            autoSend: false,
         },
     ];
     return (
-        <div className="aui-thread-welcome-suggestions grid w-full @md:grid-cols-2 gap-2 pb-4">
+        <div className="aui-thread-welcome-suggestions grid w-full grid-cols-2 gap-2 pb-4">
             {suggestions.map((suggestedAction, index) => (
                 <div
                     key={`suggested-action-${suggestedAction.title}-${index}`}
-                    className="aui-thread-welcome-suggestion-display fade-in slide-in-from-bottom-4 @md:nth-[n+3]:block nth-[n+3]:hidden animate-in fill-mode-both duration-300 ease-out"
+                    className="aui-thread-welcome-suggestion-display fade-in slide-in-from-bottom-4 animate-in fill-mode-both duration-300 ease-out"
                     style={{ animationDelay: `${index * 50}ms` }}
                 >
                     <ThreadPrimitive.Suggestion
@@ -132,15 +185,15 @@ const ThreadSuggestions: FC = () => {
                     >
                         <Button
                             variant="ghost"
-                            className="aui-thread-welcome-suggestion h-auto w-full flex-1 @md:flex-col flex-wrap items-start justify-start gap-1 rounded-3xl border px-5 py-4 text-left text-sm dark:hover:bg-accent/60"
+                            className="aui-thread-welcome-suggestion h-auto w-full flex-col items-start justify-start gap-1 rounded-2xl border px-4 py-3 text-left text-sm dark:hover:bg-accent/60"
                             aria-label={suggestedAction.action}
                         >
-              <span className="aui-thread-welcome-suggestion-text-1 font-medium">
-                {suggestedAction.title}
-              </span>
-                            <span className="aui-thread-welcome-suggestion-text-2 text-muted-foreground">
-                {suggestedAction.label}
-              </span>
+                            <span className="aui-thread-welcome-suggestion-text-1 font-medium">
+                                {suggestedAction.title}
+                            </span>
+                            <span className="aui-thread-welcome-suggestion-text-2 text-xs text-muted-foreground">
+                                {suggestedAction.label}
+                            </span>
                         </Button>
                     </ThreadPrimitive.Suggestion>
                 </div>
