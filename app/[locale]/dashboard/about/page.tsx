@@ -103,7 +103,7 @@ export default function AboutPage() {
                             <div className="min-h-[400px] border rounded-md">
                                 <TiptapEditor
                                     content={zhContent}
-                                    onContentChange={(content) => handleContentChange("zh", content)}
+                                    onChange={(content) => handleContentChange("zh", content)}
                                 />
                             </div>
                             <div className="flex justify-end">
@@ -132,7 +132,7 @@ export default function AboutPage() {
                             <div className="min-h-[400px] border rounded-md">
                                 <TiptapEditor
                                     content={enContent}
-                                    onContentChange={(content) => handleContentChange("en", content)}
+                                    onChange={(content) => handleContentChange("en", content)}
                                 />
                             </div>
                             <div className="flex justify-end">
