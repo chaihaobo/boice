@@ -116,11 +116,11 @@ const ThreadWelcome: FC = () => {
     return (
         <div className="aui-thread-welcome-root mx-auto my-auto flex w-full max-w-(--thread-max-width) grow flex-col">
             <div className="aui-thread-welcome-center flex w-full grow flex-col items-center justify-center">
-                <div className="aui-thread-welcome-message flex size-full flex-col justify-center px-8">
-                    <div className="aui-thread-welcome-message-inner fade-in slide-in-from-bottom-2 animate-in font-semibold text-2xl duration-300 ease-out">
+                <div className="aui-thread-welcome-message flex size-full flex-col justify-center px-4 sm:px-8">
+                    <div className="aui-thread-welcome-message-inner fade-in slide-in-from-bottom-2 animate-in font-semibold text-xl sm:text-2xl duration-300 ease-out">
                         {t("assistant.welcome_title")}
                     </div>
-                    <div className="aui-thread-welcome-message-inner fade-in slide-in-from-bottom-2 animate-in text-2xl text-muted-foreground/65 delay-100 duration-300 ease-out">
+                    <div className="aui-thread-welcome-message-inner fade-in slide-in-from-bottom-2 animate-in text-lg sm:text-2xl text-muted-foreground/65 delay-100 duration-300 ease-out">
                         {t("assistant.welcome_subtitle")}
                     </div>
                 </div>
@@ -171,7 +171,7 @@ const ThreadSuggestions: FC = () => {
         },
     ];
     return (
-        <div className="aui-thread-welcome-suggestions grid w-full grid-cols-2 gap-2 pb-4">
+        <div className="aui-thread-welcome-suggestions grid w-full grid-cols-2 gap-1.5 sm:gap-2 pb-4 px-1">
             {suggestions.map((suggestedAction, index) => (
                 <div
                     key={`suggested-action-${suggestedAction.title}-${index}`}
@@ -185,13 +185,13 @@ const ThreadSuggestions: FC = () => {
                     >
                         <Button
                             variant="ghost"
-                            className="aui-thread-welcome-suggestion h-auto w-full flex-col items-start justify-start gap-1 rounded-2xl border px-4 py-3 text-left text-sm dark:hover:bg-accent/60"
+                            className="aui-thread-welcome-suggestion h-auto w-full flex-col items-start justify-start gap-0.5 sm:gap-1 rounded-xl sm:rounded-2xl border px-2.5 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm dark:hover:bg-accent/60"
                             aria-label={suggestedAction.action}
                         >
-                            <span className="aui-thread-welcome-suggestion-text-1 font-medium">
+                            <span className="aui-thread-welcome-suggestion-text-1 font-medium line-clamp-1">
                                 {suggestedAction.title}
                             </span>
-                            <span className="aui-thread-welcome-suggestion-text-2 text-xs text-muted-foreground">
+                            <span className="aui-thread-welcome-suggestion-text-2 text-xs text-muted-foreground line-clamp-1 hidden sm:block">
                                 {suggestedAction.label}
                             </span>
                         </Button>
@@ -206,11 +206,11 @@ const Composer: FC = () => {
     const { t } = useTranslation();
     return (
         <ComposerPrimitive.Root className="aui-composer-root relative flex w-full flex-col">
-            <ComposerPrimitive.AttachmentDropzone className="aui-composer-attachment-dropzone flex w-full flex-col rounded-3xl border border-input bg-background px-1 pt-2 shadow-xs outline-none transition-[color,box-shadow] has-[textarea:focus-visible]:border-ring has-[textarea:focus-visible]:ring-[3px] has-[textarea:focus-visible]:ring-ring/50 data-[dragging=true]:border-ring data-[dragging=true]:border-dashed data-[dragging=true]:bg-accent/50 dark:bg-background">
+            <ComposerPrimitive.AttachmentDropzone className="aui-composer-attachment-dropzone flex w-full flex-col rounded-2xl sm:rounded-3xl border border-input bg-background px-1 pt-1.5 sm:pt-2 shadow-xs outline-none transition-[color,box-shadow] has-[textarea:focus-visible]:border-ring has-[textarea:focus-visible]:ring-[3px] has-[textarea:focus-visible]:ring-ring/50 data-[dragging=true]:border-ring data-[dragging=true]:border-dashed data-[dragging=true]:bg-accent/50 dark:bg-background">
                 <ComposerAttachments />
                 <ComposerPrimitive.Input
                     placeholder={t("assistant.input_placeholder")}
-                    className="aui-composer-input mb-1 max-h-32 min-h-16 w-full resize-none bg-transparent px-3.5 pt-1.5 pb-3 text-base outline-none placeholder:text-muted-foreground focus-visible:ring-0"
+                    className="aui-composer-input mb-1 max-h-32 min-h-12 sm:min-h-16 w-full resize-none bg-transparent px-3 sm:px-3.5 pt-1 sm:pt-1.5 pb-2 sm:pb-3 text-sm sm:text-base outline-none placeholder:text-muted-foreground focus-visible:ring-0"
                     rows={1}
                     autoFocus
                     aria-label={t("assistant.input_placeholder")}
