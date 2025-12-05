@@ -37,7 +37,7 @@ export default async function RootLayout({
 
     return (
         <html lang="en" suppressHydrationWarning>
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col w-full h-full`}>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}>
         <AppProvider locale={locale} i18nResource={resources} authUser={currentUser.data.user}>
             {children}
         </AppProvider>

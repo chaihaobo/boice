@@ -1,7 +1,8 @@
 "use client";
-import React, {useState} from "react";
+import React, {useState, useMemo} from "react";
 import {ThemeProvider} from "@/components/theme-provider";
 import {Header} from "@/app/[locale]/components/header";
+import {Footer} from "@/app/[locale]/components/footer";
 import TranslationsProvider from "@/components/translations-provider";
 import {Resource, type TFunction} from "i18next";
 import {useTranslation} from "react-i18next";
@@ -9,14 +10,13 @@ import {useTheme, UseThemeProps} from "next-themes";
 import {User} from "@supabase/auth-js";
 import {createClient} from "@/lib/supabase/client";
 import {
-    useQuery,
-    useMutation,
-    useQueryClient,
     QueryClient,
     QueryClientProvider,
 } from "@tanstack/react-query";
-import Script from "next/script";
-import {AssistantRuntimeProvider} from "@assistant-ui/react";
+import {
+    AssistantRuntimeProvider,
+    unstable_useRemoteThreadListRuntime as useRemoteThreadListRuntime,
+} from "@assistant-ui/react";
 import {useChatRuntime, AssistantChatTransport} from "@assistant-ui/react-ai-sdk";
 import {AssistantModal} from "@/components/assistant-ui/assistant-modal";
 import {
@@ -34,6 +34,7 @@ import {
     GenerateSlugToolUI,
     SearchArticlesToolUI,
 } from "@/components/assistant-ui/tool-ui";
+import {createSupabaseThreadListAdapter} from "@/lib/assistant/supabase-thread-adapter";
 
 
 export interface App {
@@ -77,14 +78,13 @@ function createApp(authUser: User | null, locale: string) {
     return app;
 }
 
+// 创建一个稳定的 QueryClient 实例
+const queryClient = new QueryClient();
+
 export const AppProvider: React.FC<AppProviderProps> = ({locale, i18nResource, children, authUser}) => {
     const app = createApp(authUser, locale);
-    const runtime = useChatRuntime({
-        transport: new AssistantChatTransport({
-            api: "/api/chat",
-        }),
-    });
-    return <>
+
+    return (
         <AppContext.Provider value={app}>
             <TranslationsProvider
                 namespaces={['common']}
@@ -95,30 +95,66 @@ export const AppProvider: React.FC<AppProviderProps> = ({locale, i18nResource, c
                     defaultTheme="system"
                     enableSystem
                     disableTransitionOnChange>
-                    <QueryClientProvider client={new QueryClient()}>
+                    <QueryClientProvider client={queryClient}>
                         <Header/>
-                        {children}
-                        <AssistantRuntimeProvider runtime={runtime}>
-                            <QueryArticlesToolUI />
-                            <ScrapeToolUI />
-                            <CreateArticleToolUI />
-                            <GetCategoriesToolUI />
-                            <GetTagsToolUI />
-                            <GenerateCoverImageToolUI />
-                            <GetMultipleCoverImagesToolUI />
-                            <CreateTagToolUI />
-                            <CreateCategoryToolUI />
-                            <UpdateArticleStatusToolUI />
-                            <GetCurrentTimeToolUI />
-                            <GenerateSlugToolUI />
-                            <SearchArticlesToolUI />
+                        <AssistantProvider userId={authUser?.id ?? null}>
                             <AssistantModal/>
-                        </AssistantRuntimeProvider>
+                            <main className="flex-1">
+                                {children}
+                            </main>
+                        </AssistantProvider>
                     </QueryClientProvider>
+                    <Footer/>
                 </ThemeProvider>
             </TranslationsProvider>
         </AppContext.Provider>
-    </>
+    );
+};
+
+// 单独的 Assistant Provider 组件
+function AssistantProvider({
+    children,
+    userId,
+}: {
+    children: React.ReactNode;
+    userId: string | null;
+}) {
+    const supabase = useMemo(() => createClient(), []);
+    
+    const threadListAdapter = useMemo(
+        () => createSupabaseThreadListAdapter(supabase, userId),
+        [supabase, userId]
+    );
+
+    const runtime = useRemoteThreadListRuntime({
+        runtimeHook: () =>
+            // eslint-disable-next-line react-hooks/rules-of-hooks
+            useChatRuntime({
+                transport: new AssistantChatTransport({
+                    api: "/api/chat",
+                }),
+            }),
+        adapter: threadListAdapter,
+    });
+
+    return (
+        <AssistantRuntimeProvider runtime={runtime}>
+            <QueryArticlesToolUI/>
+            <ScrapeToolUI/>
+            <CreateArticleToolUI/>
+            <GetCategoriesToolUI/>
+            <GetTagsToolUI/>
+            <GenerateCoverImageToolUI/>
+            <GetMultipleCoverImagesToolUI/>
+            <CreateTagToolUI/>
+            <CreateCategoryToolUI/>
+            <UpdateArticleStatusToolUI/>
+            <GetCurrentTimeToolUI/>
+            <GenerateSlugToolUI/>
+            <SearchArticlesToolUI/>
+            {children}
+        </AssistantRuntimeProvider>
+    );
 }
 
 export function useApp() {

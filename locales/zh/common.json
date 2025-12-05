@@ -1,6 +1,7 @@
 {
   "nav.home": "首页",
   "nav.about": "关于我",
+  "nav.assistant": "助手",
   "article.title": "文章",
   "article.subtitle": "探索最新的技术趋势和开发实践",
   "article.read_more": "阅读更多",
@@ -168,5 +169,7 @@
   "assistant.previous": "上一个",
   "assistant.next": "下一个",
   "assistant.add_attachment": "添加附件",
-  "assistant.new_thread": "新建对话"
+  "assistant.new_thread": "新建对话",
+  "footer.builtWith": "技术栈",
+  "footer.viewOnGithub": "在 GitHub 上查看"
 }

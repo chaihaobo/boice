@@ -55,7 +55,7 @@ export default function EditArticlePage() {
         queryFn: () => getArticleById(articleId),
     })
 
-    const { data: categoriesResult } = useQuery({
+    const { data: categoriesResult, isLoading: isLoadingCategories } = useQuery({
         queryKey: ["categories"],
         queryFn: getCategories,
     })
@@ -70,18 +70,18 @@ export default function EditArticlePage() {
     const article = articleResult?.data
 
     useEffect(() => {
-        if (article) {
+        if (article && !isLoadingCategories) {
             setFormData({
                 title: article.title || "",
                 description: article.description || "",
                 content: article.content || "",
-                category_id: article.category_id,
+                category_id: article.category_id ?? null,
                 status: article.status || "draft",
                 tag_ids: article.tags?.map((tag: Tag) => tag.id) || [],
                 image: article.image || null,
             })
         }
-    }, [article])
+    }, [article, isLoadingCategories])
 
     const updateMutation = useMutation({
         mutationFn: (data: ArticleFormData) => updateArticle(articleId, data),
@@ -107,7 +107,7 @@ export default function EditArticlePage() {
         }))
     }
 
-    if (isLoadingArticle) {
+    if (isLoadingArticle || isLoadingCategories) {
         return (
             <div className="space-y-6">
                 <Skeleton className="h-10 w-48" />
@@ -207,6 +207,7 @@ export default function EditArticlePage() {
                                 <div className="space-y-2">
                                     <Label htmlFor="status">{t("dashboard.status")}</Label>
                                     <Select
+                                        key={`status-${formData.status}`}
                                         value={formData.status}
                                         onValueChange={(value: "draft" | "published" | "archived") =>
                                             setFormData({ ...formData, status: value })
@@ -225,7 +226,8 @@ export default function EditArticlePage() {
                                 <div className="space-y-2">
                                     <Label htmlFor="category">{t("dashboard.category")}</Label>
                                     <Select
-                                        value={formData.category_id?.toString() || "none"}
+                                        key={`category-${formData.category_id}`}
+                                        value={formData.category_id !== null && formData.category_id !== undefined ? formData.category_id.toString() : "none"}
                                         onValueChange={(value) =>
                                             setFormData({
                                                 ...formData,
@@ -234,7 +236,7 @@ export default function EditArticlePage() {
                                         }
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder={t("dashboard.select_category")} />
+                                            <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="none">{t("dashboard.no_category")}</SelectItem>

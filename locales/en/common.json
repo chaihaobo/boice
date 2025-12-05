@@ -1,6 +1,7 @@
 {
   "nav.home": "Home",
   "nav.about": "About Me",
+  "nav.assistant": "Assistant",
   "article.title": "Articles",
   "article.subtitle": "Explore the latest tech trends and development practices",
   "article.read_more": "Read More",
@@ -168,5 +169,7 @@
   "assistant.previous": "Previous",
   "assistant.next": "Next",
   "assistant.add_attachment": "Add attachment",
-  "assistant.new_thread": "New conversation"
+  "assistant.new_thread": "New conversation",
+  "footer.builtWith": "Built With",
+  "footer.viewOnGithub": "View on GitHub"
 }

@@ -3,7 +3,7 @@ import {ThemeToggle} from "@/components/theme-toggle";
 import {LanguageToggle} from "@/components/language-toggle";
 import React, {useEffect, useState} from "react";
 import {Button} from "@/components/ui/button";
-import {Github, LayoutDashboard, Menu, Home, Info, LogOut, X} from "lucide-react";
+import {Github, LayoutDashboard, Menu, Home, Info, LogOut, X, MessageSquare} from "lucide-react";
 import {createClient} from "@/lib/supabase/client";
 import {useApp} from "@/app/[locale]/app";
 import {Avatar, AvatarImage, AvatarFallback} from "@/components/ui/avatar";
@@ -46,9 +46,10 @@ export const Header: React.FC = () => {
         }
     }, [user]);
     
-    // Hide header on dashboard pages
+    // Hide header on dashboard and assistant pages
     const isDashboard = pathname.includes('/dashboard');
-    if (isDashboard) {
+    const isAssistant = pathname.includes('/assistant');
+    if (isDashboard || isAssistant) {
         return null;
     }
 
@@ -72,6 +73,7 @@ export const Header: React.FC = () => {
     const navItems = [
         { href: `/${locale}`, label: t('nav.home'), icon: Home },
         { href: `/${locale}/about`, label: t('nav.about'), icon: Info },
+        { href: `/${locale}/assistant`, label: t('nav.assistant'), icon: MessageSquare },
     ];
 
     const isActive = (href: string) => {

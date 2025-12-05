@@ -1,15 +1,24 @@
 "use client";
 
-import { BotIcon, ChevronDownIcon } from "lucide-react";
+import { Sparkles, ChevronDownIcon } from "lucide-react";
 
 import { type FC, forwardRef } from "react";
 import { AssistantModalPrimitive } from "@assistant-ui/react";
 import { useTranslation } from "react-i18next";
+import { usePathname } from "next/navigation";
 
 import { Thread } from "@/components/assistant-ui/thread";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 
 export const AssistantModal: FC = () => {
+  const pathname = usePathname();
+  
+  // 在 assistant 页面隐藏 modal
+  const isAssistantPage = pathname.includes('/assistant');
+  if (isAssistantPage) {
+    return null;
+  }
+
   return (
     <AssistantModalPrimitive.Root>
       <AssistantModalPrimitive.Anchor className="aui-root aui-modal-anchor fixed right-4 bottom-4 size-11">
@@ -45,7 +54,7 @@ const AssistantModalButton = forwardRef<
       className="aui-modal-button size-full rounded-full shadow transition-transform hover:scale-110 active:scale-90"
       ref={ref}
     >
-      <BotIcon
+      <Sparkles
         data-state={state}
         className="aui-modal-button-closed-icon absolute size-6 transition-all data-[state=closed]:rotate-0 data-[state=open]:rotate-90 data-[state=closed]:scale-100 data-[state=open]:scale-0"
       />
