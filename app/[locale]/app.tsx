@@ -113,18 +113,19 @@ export const AppProvider: React.FC<AppProviderProps> = ({locale, i18nResource, c
 
 // 单独的 Assistant Provider 组件
 function AssistantProvider({
-    children,
-    userId,
-}: {
+                               children,
+                               userId,
+                           }: {
     children: React.ReactNode;
     userId: string | null;
 }) {
     const supabase = useMemo(() => createClient(), []);
-    
+
     const threadListAdapter = useMemo(
         () => createSupabaseThreadListAdapter(supabase, userId),
         [supabase, userId]
     );
+    useChatRuntime()
 
     const runtime = useRemoteThreadListRuntime({
         runtimeHook: () =>
