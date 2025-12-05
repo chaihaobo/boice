@@ -8,6 +8,11 @@ import type {
     AssistantApi,
     MessageFormatAdapter,
     MessageStorageEntry,
+    Attachment,
+    PendingAttachment,
+    CompleteAttachment,
+    AttachmentAdapter,
+    ThreadUserMessagePart,
 } from "@assistant-ui/react";
 import {createAssistantStream} from "assistant-stream";
 import {FC, PropsWithChildren, useMemo, useState} from "react";
@@ -62,6 +67,50 @@ interface StoredMessage {
     content: unknown;
     created_at: string;
 }
+
+// ==================== 自定义格式适配器（支持附件）====================
+
+// 自定义存储格式 - 保留所有 parts 包括文件
+export type CustomAISDKStorageFormat = {
+    role: string;
+    parts: unknown[];
+};
+
+/**
+ * 自定义的 AI SDK 格式适配器
+ * 与官方 aiSDKV5FormatAdapter 的区别：不会过滤掉 file 类型的 parts
+ */
+export const customAISDKFormatAdapter: MessageFormatAdapter<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any,
+    CustomAISDKStorageFormat
+> = {
+    format: "ai-sdk/v5-with-files",  // 使用不同的格式名称
+
+    encode({ message }: { parentId: string | null; message: { id: string; role: string; parts: unknown[] } }): CustomAISDKStorageFormat {
+        // 保留所有 parts，不过滤文件
+        return {
+            role: message.role,
+            parts: message.parts,
+        };
+    },
+
+    decode(stored: MessageStorageEntry<CustomAISDKStorageFormat>): { parentId: string | null; message: { id: string; role: string; parts: unknown[] } } {
+        return {
+            parentId: stored.parent_id,
+            message: {
+                id: stored.id,
+                role: stored.content.role,
+                parts: stored.content.parts,
+            },
+        };
+    },
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getId(message: any): string {
+        return message.id;
+    },
+};
 
 // 格式化的 History Adapter - 用于 withFormat
 class FormattedSupabaseHistoryAdapter<TMessage, TStorageFormat> {
@@ -236,18 +285,166 @@ function useSupabaseThreadHistoryAdapter(supabase: SupabaseClient) {
     return adapter;
 }
 
+// ==================== Attachment Adapter ====================
+
+// 根据 MIME 类型猜测附件类型
+const guessAttachmentType = (
+    contentType: string,
+): "image" | "document" | "file" => {
+    if (contentType.startsWith("image/")) return "image";
+    if (contentType.startsWith("text/")) return "document";
+    if (contentType.startsWith("application/pdf")) return "document";
+    return "file";
+};
+
+// Supabase Storage 附件适配器
+export class SupabaseAttachmentAdapter implements AttachmentAdapter {
+    public accept = "*";
+    
+    // 存储上传后的 URL 映射
+    private uploadedUrls = new Map<string, string>();
+    
+    constructor(
+        private supabase: SupabaseClient,
+        private bucketName: string = "chat-attachments"
+    ) {}
+
+    public async *add({
+        file,
+    }: {
+        file: File;
+    }): AsyncGenerator<PendingAttachment, void> {
+        const id = crypto.randomUUID();
+        const type = guessAttachmentType(file.type);
+        
+        let attachment: PendingAttachment = {
+            id,
+            type,
+            name: file.name,
+            contentType: file.type,
+            file,
+            status: { type: "running", reason: "uploading", progress: 0 },
+        };
+        
+        yield attachment;
+
+        try {
+            // 生成唯一的文件路径
+            const fileExt = file.name.split('.').pop() || '';
+            const filePath = `${id}${fileExt ? `.${fileExt}` : ''}`;
+            
+            // 上传到 Supabase Storage
+            const { data, error } = await this.supabase.storage
+                .from(this.bucketName)
+                .upload(filePath, file, {
+                    contentType: file.type,
+                    upsert: false,
+                });
+
+            if (error) {
+                throw error;
+            }
+
+            // 获取公开 URL
+            const { data: urlData } = this.supabase.storage
+                .from(this.bucketName)
+                .getPublicUrl(data.path);
+
+            const publicUrl = urlData.publicUrl;
+            this.uploadedUrls.set(id, publicUrl);
+
+            attachment = {
+                ...attachment,
+                status: { type: "requires-action", reason: "composer-send" },
+            };
+            
+            yield attachment;
+        } catch (error) {
+            console.error("Error uploading attachment:", error);
+            attachment = {
+                ...attachment,
+                status: { type: "incomplete", reason: "error" },
+            };
+            yield attachment;
+        }
+    }
+
+    public async remove(attachment: Attachment): Promise<void> {
+        // 从 URL map 中移除
+        this.uploadedUrls.delete(attachment.id);
+        
+        // 可选：从 Storage 中删除文件
+        // const fileExt = attachment.name.split('.').pop() || '';
+        // const filePath = `${attachment.id}${fileExt ? `.${fileExt}` : ''}`;
+        // await this.supabase.storage.from(this.bucketName).remove([filePath]);
+    }
+
+    public async send(
+        attachment: PendingAttachment,
+    ): Promise<CompleteAttachment> {
+        const url = this.uploadedUrls.get(attachment.id);
+        if (!url) throw new Error("Attachment not uploaded");
+        
+        this.uploadedUrls.delete(attachment.id);
+
+        let content: ThreadUserMessagePart[];
+        
+        if (attachment.type === "image") {
+            content = [{ 
+                type: "image", 
+                image: url, 
+                filename: attachment.name 
+            }];
+        } else {
+            content = [
+                {
+                    type: "file",
+                    data: url,
+                    mimeType: attachment.contentType,
+                    filename: attachment.name,
+                },
+            ];
+        }
+
+        return {
+            ...attachment,
+            status: { type: "complete" },
+            content,
+        };
+    }
+}
+
+// 创建 Attachment Adapter 的 hook
+function useSupabaseAttachmentAdapter(
+    supabase: SupabaseClient,
+    bucketName: string = "chat-attachments"
+) {
+    const [adapter] = useState(
+        () => new SupabaseAttachmentAdapter(supabase, bucketName)
+    );
+    return adapter;
+}
+
+// ==================== Provider ====================
+
 // Supabase History Provider 组件
 function SupabaseHistoryProvider({
     children,
     supabase,
-}: PropsWithChildren<{ supabase: SupabaseClient }>) {
+    attachmentBucketName = "chat-attachments",
+}: PropsWithChildren<{ 
+    supabase: SupabaseClient;
+    attachmentBucketName?: string;
+}>) {
     const history = useSupabaseThreadHistoryAdapter(supabase);
+    const attachments = useSupabaseAttachmentAdapter(supabase, attachmentBucketName);
 
     const adapters = useMemo(
         () => ({
             history,
+            attachments,
         }),
-        [history]
+        [history, attachments]
     );
 
     return (

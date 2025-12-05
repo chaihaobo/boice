@@ -33,6 +33,7 @@ import {
     GetCurrentTimeToolUI,
     GenerateSlugToolUI,
     SearchArticlesToolUI,
+    GetAboutMeToolUI,
 } from "@/components/assistant-ui/tool-ui";
 import {createSupabaseThreadListAdapter} from "@/lib/assistant/supabase-thread-adapter";
 
@@ -153,6 +154,7 @@ function AssistantProvider({
             <GetCurrentTimeToolUI/>
             <GenerateSlugToolUI/>
             <SearchArticlesToolUI/>
+            <GetAboutMeToolUI/>
             {children}
         </AssistantRuntimeProvider>
     );

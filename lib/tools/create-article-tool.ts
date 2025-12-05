@@ -1,6 +1,7 @@
 import { tool } from "ai";
 import { z } from "zod";
 import { createArticle, getCategories, getTags } from "@/lib/actions/dashboard-actions";
+import { checkDashboardAccess } from "@/lib/actions/auth-actions";
 
 /**
  * 创建文章工具
@@ -44,6 +45,16 @@ export const createArticleTool = tool({
     image = null,
   }) => {
     try {
+      // 检查管理员权限
+      const hasAccess = await checkDashboardAccess();
+      if (!hasAccess) {
+        return {
+          success: false,
+          error: "没有权限执行此操作，需要管理员权限",
+          article: null,
+        };
+      }
+
       const result = await createArticle({
         title,
         content,

@@ -5,6 +5,7 @@ import {
   createCategory,
 } from "@/lib/actions/dashboard-actions";
 import { createClient } from "@/lib/supabase/server";
+import { checkDashboardAccess } from "@/lib/actions/auth-actions";
 
 /**
  * 创建标签工具
@@ -20,6 +21,16 @@ export const createTagTool = tool({
   }),
   execute: async ({ name, slug }) => {
     try {
+      // 检查管理员权限
+      const hasAccess = await checkDashboardAccess();
+      if (!hasAccess) {
+        return {
+          success: false,
+          error: "没有权限执行此操作，需要管理员权限",
+          tag: null,
+        };
+      }
+
       const finalSlug = slug || generateSlugFromText(name);
       const result = await createTag(name, finalSlug);
 
@@ -65,6 +76,16 @@ export const createCategoryTool = tool({
   }),
   execute: async ({ name, slug, description }) => {
     try {
+      // 检查管理员权限
+      const hasAccess = await checkDashboardAccess();
+      if (!hasAccess) {
+        return {
+          success: false,
+          error: "没有权限执行此操作，需要管理员权限",
+          category: null,
+        };
+      }
+
       const finalSlug = slug || generateSlugFromText(name);
       const finalDescription = description || "";
       const result = await createCategory(name, finalSlug, finalDescription);
@@ -113,6 +134,15 @@ export const updateArticleStatusTool = tool({
   }),
   execute: async ({ articleId, status }) => {
     try {
+      // 检查管理员权限
+      const hasAccess = await checkDashboardAccess();
+      if (!hasAccess) {
+        return {
+          success: false,
+          error: "没有权限执行此操作，需要管理员权限",
+        };
+      }
+
       const supabase = await createClient();
 
       const { data: article, error } = await supabase
@@ -313,6 +343,67 @@ export const searchArticlesTool = tool({
         error: err instanceof Error ? err.message : "搜索文章时发生未知错误",
         articles: [],
         total: 0,
+      };
+    }
+  },
+});
+
+/**
+ * 获取作者信息工具
+ * 查询 about_me 表获取作者介绍
+ */
+export const getAboutMeTool = tool({
+  description: `获取博客作者的个人介绍信息。
+使用场景：
+- 用户想了解博客作者是谁
+- 用户询问"你是谁"或"这是谁的博客"
+- 用户想知道作者的背景信息`,
+  inputSchema: z.object({
+    locale: z
+      .enum(["zh", "en"])
+      .optional()
+      .describe("语言版本：zh（中文）或 en（英文），默认返回中文"),
+  }),
+  execute: async ({ locale = "zh" }) => {
+    try {
+      const supabase = await createClient();
+
+      const { data, error } = await supabase
+        .from("about_me")
+        .select("*")
+        .eq("locale", locale)
+        .maybeSingle();
+
+      if (error) {
+        return {
+          success: false,
+          error: error.message,
+          aboutMe: null,
+        };
+      }
+
+      if (!data) {
+        return {
+          success: true,
+          message: locale === "zh" ? "暂无作者介绍信息" : "No author information available",
+          aboutMe: null,
+        };
+      }
+
+      return {
+        success: true,
+        aboutMe: {
+          content: data.content,
+          locale: data.locale,
+          updatedAt: data.updated_at,
+        },
+        message: locale === "zh" ? "已获取作者介绍" : "Author information retrieved",
+      };
+    } catch (err) {
+      return {
+        success: false,
+        error: err instanceof Error ? err.message : "获取作者信息时发生未知错误",
+        aboutMe: null,
       };
     }
   },

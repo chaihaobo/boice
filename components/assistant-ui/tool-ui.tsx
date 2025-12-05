@@ -17,6 +17,7 @@ import {
   LinkIcon,
   SearchIcon,
   RefreshCwIcon,
+  UserIcon,
 } from "lucide-react";
 
 // 文章类型定义
@@ -841,6 +842,73 @@ export const SearchArticlesToolUI = makeAssistantToolUI<
               <div className="flex items-center gap-1 text-sm text-red-500">
                 <XCircleIcon className="h-4 w-4" />
                 <span>{result.error}</span>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  },
+});
+
+// 获取作者信息结果类型
+type GetAboutMeResult = {
+  success: boolean;
+  error?: string;
+  message?: string;
+  aboutMe?: {
+    content: string;
+    locale: string;
+    updatedAt: string;
+  } | null;
+};
+
+// 获取作者信息工具 UI
+export const GetAboutMeToolUI = makeAssistantToolUI<
+  { locale?: "zh" | "en" },
+  GetAboutMeResult
+>({
+  toolName: "getAboutMe",
+  render: ({ args, result, status }) => {
+    const localeText = args.locale === "en" ? "英文" : "中文";
+    return (
+      <div className="my-2 rounded-lg border bg-card p-3">
+        <div className="mb-2 flex items-center gap-2 text-sm font-medium">
+          <UserIcon className="h-4 w-4 text-teal-500" />
+          <span>获取作者信息</span>
+          <span className="rounded bg-teal-100 px-1.5 py-0.5 text-xs text-teal-700 dark:bg-teal-900/30 dark:text-teal-300">
+            {localeText}
+          </span>
+        </div>
+
+        {status.type === "running" && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2Icon className="h-4 w-4 animate-spin" />
+            <span>正在获取作者信息...</span>
+          </div>
+        )}
+
+        {result && (
+          <div className="space-y-2">
+            {result.success ? (
+              <>
+                <div className="flex items-center gap-1 text-sm text-green-600">
+                  <CheckCircleIcon className="h-4 w-4" />
+                  <span>{result.message}</span>
+                </div>
+                {result.aboutMe?.content && (
+                  <div className="max-h-32 overflow-y-auto rounded bg-muted/50 px-3 py-2 text-sm">
+                    <div className="line-clamp-4 whitespace-pre-wrap">
+                      {result.aboutMe.content.substring(0, 200)}
+                      {result.aboutMe.content.length > 200 && "..."}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="flex items-center gap-1 text-sm text-red-500">
+                <XCircleIcon className="h-4 w-4" />
+                <span>{result.error || "获取失败"}</span>
               </div>
             )}
           </div>

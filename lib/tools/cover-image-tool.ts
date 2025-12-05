@@ -1,6 +1,7 @@
 import { tool } from "ai";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { checkDashboardAccess } from "@/lib/actions/auth-actions";
 
 /**
  * 生成随机封面图工具
@@ -76,6 +77,16 @@ export const generateCoverImageTool = tool({
   inputSchema: z.object({}),
   execute: async () => {
     try {
+      // 检查管理员权限
+      const hasAccess = await checkDashboardAccess();
+      if (!hasAccess) {
+        return {
+          success: false,
+          error: "没有权限执行此操作，需要管理员权限",
+          imageUrl: null,
+        };
+      }
+
       // 生成随机图片 URL
       const timestamp = Date.now();
       const seed = `${timestamp}-${Math.random().toString(36).substring(7)}`;
@@ -111,6 +122,16 @@ export const getMultipleCoverImagesTool = tool({
   }),
   execute: async ({ count = 4 }) => {
     try {
+      // 检查管理员权限
+      const hasAccess = await checkDashboardAccess();
+      if (!hasAccess) {
+        return {
+          success: false,
+          error: "没有权限执行此操作，需要管理员权限",
+          images: [],
+        };
+      }
+
       const images: Array<{
         url: string;
         index: number;

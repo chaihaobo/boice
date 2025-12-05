@@ -35,6 +35,7 @@ import {
 } from "@/components/assistant-ui/attachment";
 
 import {cn} from "@/lib/utils";
+import {Reasoning, ReasoningGroup} from "@/components/assistant-ui/reasoning";
 
 interface ThreadProps {
     showHeader?: boolean;
@@ -148,6 +149,12 @@ const ThreadSuggestions: FC = () => {
             title: t("assistant.suggestion_query_articles_title"),
             label: t("assistant.suggestion_query_articles_label"),
             action: t("assistant.suggestion_query_articles_action"),
+            autoSend: true,
+        },
+        {
+            title: t("assistant.suggestion_about_author_title"),
+            label: t("assistant.suggestion_about_author_label"),
+            action: t("assistant.suggestion_about_author_action"),
             autoSend: true,
         },
         {
@@ -293,9 +300,11 @@ const AssistantMessage: FC = () => {
             className="aui-assistant-message-root fade-in slide-in-from-bottom-1 relative mx-auto w-full max-w-(--thread-max-width) animate-in py-4 duration-150 ease-out"
             data-role="assistant"
         >
-            <div className="aui-assistant-message-content wrap-break-word mx-2 text-foreground leading-7">
+            <div className="aui-assistant-message-content wrap-break-word mx-2 text-foreground leading-7 ">
                 <MessagePrimitive.Parts
                     components={{
+                        Reasoning: Reasoning,
+                        ReasoningGroup: ReasoningGroup,
                         Text: MarkdownText,
                         tools: {Fallback: ToolFallback},
                     }}

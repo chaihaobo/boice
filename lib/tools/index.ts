@@ -30,5 +30,6 @@ export {
   getCurrentTimeTool,
   generateSlugTool,
   searchArticlesTool,
+  getAboutMeTool,
 } from "./basic-tools";
 
