@@ -36,7 +36,7 @@ export default function ArticleDetail({article}: ArticleDetailProps) {
     const [isLiking, setIsLiking] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [tocAnchors, setTocAnchors] = useState<TocAnchor[]>([]);
-    const [showToc, setShowToc] = useState(true);
+    const [showToc, setShowToc] = useState(false);
     const viewsIncrementedRef = useRef(false);
 
     // 页面加载时增加阅读数和检查点赞状态
@@ -121,19 +121,19 @@ export default function ArticleDetail({article}: ArticleDetailProps) {
                         <ArrowLeft className="w-4 h-4"/>
                         {t('article.back', '返回')}
                     </Button>
-
-                    {tocAnchors.length > 0 && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setShowToc(!showToc)}
-                            className="flex items-center gap-2 lg:hidden"
-                        >
-                            <ListTree className="w-4 h-4"/>
-                            {t('article.toc', '目录')}
-                        </Button>
-                    )}
                 </div>
+
+                {/* 移动端 TOC 悬浮按钮 - 固定在屏幕右上角菜单栏下方 */}
+                {tocAnchors.length > 0 && (
+                    <Button
+                        variant="secondary"
+                        size="icon"
+                        onClick={() => setShowToc(!showToc)}
+                        className="fixed top-20 right-4 z-40 lg:hidden shadow-lg rounded-full w-10 h-10"
+                    >
+                        <ListTree className="w-4 h-4"/>
+                    </Button>
+                )}
 
                 <div className="flex gap-8">
                     {/* 主内容区域 */}

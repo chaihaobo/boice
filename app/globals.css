@@ -727,8 +727,11 @@ body {
 }
 
 
+
 pre {
-  overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-x: auto;
 }
 
 code{
