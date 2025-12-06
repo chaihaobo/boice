@@ -65,7 +65,7 @@
     "lowlight-mermaid": "^0.0.0",
     "lucide-react": "^0.554.0",
     "mermaid": "^11.12.2",
-    "next": "16.0.3",
+    "next": "^16.0.7",
     "next-i18n-router": "^5.5.5",
     "next-i18next": "^15.4.2",
     "next-themes": "^0.4.6",
