@@ -501,3 +501,201 @@ body {
   pointer-events: none;
   height: 0;
 }
+
+/* Code Block Lowlight - Syntax Highlighting Styles */
+.ProseMirror pre {
+  background: oklch(0.21 0.006 285.885);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.ProseMirror pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.875rem;
+  color: oklch(0.92 0.004 286.32);
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* Code block language label */
+.ProseMirror pre::before {
+  content: attr(data-language);
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  font-size: 0.75rem;
+  color: oklch(0.705 0.015 286.067);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.ProseMirror pre {
+  position: relative;
+}
+
+/* Lowlight/Highlight.js Token Colors - GitHub Dark Theme inspired */
+.hljs-comment,
+.hljs-quote {
+  color: oklch(0.552 0.016 285.938);
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-addition {
+  color: oklch(0.73 0.195 350);
+}
+
+.hljs-number,
+.hljs-string,
+.hljs-meta .hljs-meta-string,
+.hljs-literal,
+.hljs-doctag,
+.hljs-regexp {
+  color: oklch(0.78 0.15 90);
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: oklch(0.7 0.2 260);
+}
+
+.hljs-attribute,
+.hljs-attr,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-class .hljs-title,
+.hljs-type {
+  color: oklch(0.8 0.18 70);
+}
+
+.hljs-symbol,
+.hljs-bullet,
+.hljs-subst,
+.hljs-meta,
+.hljs-meta .hljs-keyword,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-link {
+  color: oklch(0.75 0.15 180);
+}
+
+.hljs-built_in,
+.hljs-deletion {
+  color: oklch(0.7 0.2 20);
+}
+
+.hljs-formula {
+  background: oklch(0.274 0.006 286.033);
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+/* Light mode code block styles */
+:root .ProseMirror pre {
+  background: oklch(0.967 0.001 286.375);
+}
+
+:root .ProseMirror pre code {
+  color: oklch(0.21 0.006 285.885);
+}
+
+:root .hljs-comment,
+:root .hljs-quote {
+  color: oklch(0.552 0.016 285.938);
+}
+
+:root .hljs-keyword,
+:root .hljs-selector-tag,
+:root .hljs-addition {
+  color: oklch(0.55 0.25 350);
+}
+
+:root .hljs-number,
+:root .hljs-string,
+:root .hljs-meta .hljs-meta-string,
+:root .hljs-literal,
+:root .hljs-doctag,
+:root .hljs-regexp {
+  color: oklch(0.5 0.2 150);
+}
+
+:root .hljs-title,
+:root .hljs-section,
+:root .hljs-name,
+:root .hljs-selector-id,
+:root .hljs-selector-class {
+  color: oklch(0.5 0.25 260);
+}
+
+:root .hljs-attribute,
+:root .hljs-attr,
+:root .hljs-variable,
+:root .hljs-template-variable,
+:root .hljs-class .hljs-title,
+:root .hljs-type {
+  color: oklch(0.55 0.2 70);
+}
+
+:root .hljs-symbol,
+:root .hljs-bullet,
+:root .hljs-subst,
+:root .hljs-meta,
+:root .hljs-meta .hljs-keyword,
+:root .hljs-selector-attr,
+:root .hljs-selector-pseudo,
+:root .hljs-link {
+  color: oklch(0.5 0.2 180);
+}
+
+:root .hljs-built_in,
+:root .hljs-deletion {
+  color: oklch(0.55 0.22 20);
+}
+
+/* Dark mode overrides */
+.dark .ProseMirror pre {
+  background: oklch(0.18 0.006 285.885);
+}
+
+.dark .ProseMirror pre code {
+  color: oklch(0.92 0.004 286.32);
+}
+
+/* Mermaid Node Styles */
+.mermaid-node {
+  background: var(--muted);
+  border-color: var(--border);
+}
+
+.mermaid-node .mermaid-svg {
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0;
+}
+
+.mermaid-node .mermaid-svg svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Mermaid diagram theme adjustments */
+.dark .mermaid-node {
+  background: oklch(0.18 0.006 285.885);
+}
+
+/* Ensure mermaid diagrams are responsive */
+.mermaid-node [data-mermaid] {
+  overflow-x: auto;
+}

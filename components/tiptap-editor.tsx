@@ -5,6 +5,12 @@ import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { Markdown } from "tiptap-markdown"
 import TableOfContents, { getHierarchicalIndexes } from "@tiptap/extension-table-of-contents"
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight"
+import { all, createLowlight } from "lowlight"
+import { MermaidExtension } from "@/components/tiptap-node/mermaid-node"
+
+// 创建 lowlight 实例，注册所有语言
+const lowlight = createLowlight(all)
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -24,6 +30,7 @@ import {
     Minus,
     CodeSquare,
     ListTree,
+    GitBranch,
 } from "lucide-react"
 import {
     Tooltip,
@@ -114,7 +121,15 @@ export function TiptapEditor({
                 heading: {
                     levels: [1, 2, 3],
                 },
+                // 禁用 StarterKit 的默认 codeBlock，使用 CodeBlockLowlight 替代
+                codeBlock: false,
             }),
+            CodeBlockLowlight.configure({
+                lowlight,
+                defaultLanguage: 'plaintext',
+                languageClassPrefix: 'language-',
+            }),
+            MermaidExtension,
             Markdown.configure({
                 html: false,
                 tightLists: true,
@@ -335,6 +350,13 @@ export function TiptapEditor({
                             showShortcut={true}
                             onInserted={() => console.log('Image inserted!')}
                         />
+                        <ToolbarButton
+                            onClick={() => editor.commands.setMermaid("graph TD\n  A[Start] --> B[Process]\n  B --> C[End]")}
+                            isActive={editor.isActive("mermaid")}
+                            tooltip="Mermaid Diagram"
+                        >
+                            <GitBranch className="h-4 w-4" />
+                        </ToolbarButton>
 
                         <Separator orientation="vertical" className="mx-1 h-6" />
 
