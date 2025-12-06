@@ -3,7 +3,9 @@
 
 @import "tailwindcss";
 
+/* stylelint-disable-next-line at-rule-no-unknown */
 @plugin "tailwind-scrollbar-hide";
+/* stylelint-disable-next-line at-rule-no-unknown */
 @plugin "@tailwindcss/typography";
 @import "tw-animate-css";
 
@@ -697,5 +699,39 @@ body {
 
 /* Ensure mermaid diagrams are responsive */
 .mermaid-node [data-mermaid] {
+  overflow-x: auto;
+}
+
+/* Mermaid Preview Modal - 手机端响应式 */
+.mermaid-preview-content {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.mermaid-preview-content svg {
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+}
+
+/* 手机端特殊处理 */
+@media (max-width: 640px) {
+  .mermaid-preview-content {
+    padding: 0.5rem;
+  }
+  
+  .mermaid-preview-content svg {
+    max-width: calc(100vw - 2rem) !important;
+  }
+}
+
+
+pre {
+  overflow: auto;
+}
+
+code{
+  max-width: 100%;
   overflow-x: auto;
 }
